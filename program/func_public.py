@@ -9,13 +9,6 @@ from pprint import pprint
 # Get relevant time periods for ISO from and to
 ISO_TIMES = get_ISO_times()
 
-pprint(ISO_TIMES)
-
-# Construct market prices
-def construct_market_prices(client):
-  pass
-
-'''
 # Get Candles recent
 def get_candles_recent(client, market):
 
@@ -40,6 +33,7 @@ def get_candles_recent(client, market):
   close_prices.reverse()
   prices_result = np.array(close_prices).astype(np.float)
   return prices_result
+
 
 
 # Get Candles Historical
@@ -97,7 +91,7 @@ def construct_market_prices(client):
 
   # Append other prices to DataFrame
   # You can limit the amount to loop though here to save time in development
-  for market in tradeable_markets[1:]:
+  for market in tradeable_markets[1:]: #<<<<<-----change it 
     close_prices_add = get_candles_historical(client, market)
     df_add = pd.DataFrame(close_prices_add)
     df_add.set_index("datetime", inplace=True)
@@ -113,4 +107,3 @@ def construct_market_prices(client):
 
   # Return result
   return df
-'''

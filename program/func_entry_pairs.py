@@ -83,10 +83,18 @@ def open_positions(client):
           accept_failsafe_base_price = format_number(failsafe_base_price, base_tick_size)
 
           # Get size
-          base_quantity = 1 / base_price * USD_PER_TRADE
-          quote_quantity = 1 / quote_price * USD_PER_TRADE
-          base_step_size = markets["markets"][base_market]["stepSize"]
-          quote_step_size = markets["markets"][quote_market]["stepSize"]
+          if base_price < 0.1:
+            base_quantity = round((1 / base_price * USD_PER_TRADE) / 10) * 10
+          else:
+            base_quantity = 1 / base_price * USD_PER_TRADE
+
+          if quote_price < 0.1:
+            quote_quantity = round((1 / quote_price * USD_PER_TRADE) / 10) * 10
+          else:
+            quote_quantity = 1 / quote_price * USD_PER_TRADE
+
+            base_step_size = markets["markets"][base_market]["stepSize"]
+            quote_step_size = markets["markets"][quote_market]["stepSize"]
 
           # Format sizes
           base_size = format_number(base_quantity, base_step_size)
@@ -135,7 +143,7 @@ def open_positions(client):
               continue
 
             # Handle success in opening trades
-            if bot_open_dict is not None and bot_open_dict.get("pair_status") == "LIVE":
+            if bot_open_dict["pair_status"] == "LIVE":
 
               # Append to list of bot agents
               bot_agents.append(bot_open_dict)
@@ -150,3 +158,27 @@ def open_positions(client):
   if len(bot_agents) > 0:
     with open("bot_agents.json", "w") as f:
       json.dump(bot_agents, f)
+
+
+
+'''
+##################
+def check_free_collateral(client):
+    # Fetch the account information
+    account = client.private.get_account()
+    free_collateral = float(account.data["account"]["freeCollateral"])
+
+    # Calculate USD_PER_TRADE as 1% of the free collateral
+    USD_PER_TRADE = free_collateral * 0.01
+
+    # Return the calculated value
+    return USD_PER_TRADE
+
+
+### for future if I want to use Kelly crireia
+def check_free_collateral(client, trade_percent=0.01):
+    account = client.private.get_account()
+    free_collateral = float(account.data["account"]["freeCollateral"])
+    usd_per_trade = free_collateral * trade_percent
+    return usd_per_trade
+'''

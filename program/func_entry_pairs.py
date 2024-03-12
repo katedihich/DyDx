@@ -6,6 +6,8 @@ from func_private import is_open_positions
 from func_bot_agent import BotAgent
 import pandas as pd
 import json
+from datetime import datetime, timedelta
+from func_messaging import send_message
 
 from pprint import pprint
 
@@ -152,12 +154,16 @@ def open_positions(client):
               # Confirm live status in print
               print("Trade status: Live")
               print("---")
+              print(datetime.now())
+              
 
   # Save agents
   print(f"Success: Manage open trades checked")
   if len(bot_agents) > 0:
     with open("bot_agents.json", "w") as f:
       json.dump(bot_agents, f)
+
+
 
 
 

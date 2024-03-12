@@ -4,6 +4,9 @@ CRON item - Daily
 
 0 12 * * * /bin/timeout -s 2 86330 python3 dydx_bot/program/main.py > output.txt  2>&1
 
+CRON item - Every Hour
+0 */1 * * * /bin/timeout -s 2 86330 python3 /dydx_bot/program/main.py > /dev/null 2>&1
+
 CRON item - 5 Mins
 
 */5 * * * * /bin/timeout -s 2 290 python3 dydx_bot/program/main.py > output.txt  2>&1

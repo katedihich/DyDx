@@ -34,29 +34,44 @@ def check_order_status(client, order_id):
 
 # Place market order
 def place_market_order(client, market, side, size, price, reduce_only):
+  print("place_market_order: start")
   # Get Position Id
   account_response = client.private.get_account()
   position_id = account_response.data["account"]["positionId"]
+  print(f"place_market_order: position_id obtained: {position_id}")
 
-  # Get expiration time
+  # Get server time and calculate time difference with local time
   server_time = client.public.get_time()
-  expiration = datetime.fromisoformat(server_time.data["iso"].replace("Z", "")) + timedelta(seconds=70)
+  server_time_dt = datetime.fromisoformat(server_time.data["iso"].replace("Z", ""))
+  local_time_dt = datetime.now()
+  time_difference = local_time_dt - server_time_dt
 
-  # Place an order
-  placed_order = client.private.create_order(
-    position_id=position_id, # required for creating the order signature
-    market=market,
-    side=side,
-    order_type="MARKET",
-    post_only=False,
-    size=size,
-    price=price,
-    limit_fee='0.015',
-    expiration_epoch_seconds=expiration.timestamp(),
-    time_in_force="FOK", 
-    reduce_only=reduce_only
-  )
+  # Calculate adjusted expiration time
+  adjusted_local_time = datetime.now() - time_difference
+  expiration = adjusted_local_time + timedelta(seconds=70)
+  print(f"place_market_order: expiration calculated: {expiration}")
 
+  try:
+        # Place order
+        placed_order = client.private.create_order(
+            position_id=position_id, # required to create order signature
+            market=market,
+            side=side,
+            order_type="MARKET",
+            post_only=False,
+            size=size,
+            price=price,
+            limit_fee='0.015',
+            expiration=expiration.isoformat() + "Z",  # Add "Z" to make it a valid ISO string
+            time_in_force="FOK",
+            reduce_only=reduce_only
+        )
+  except Exception as e:
+        print(f"Error in place_market_order creating order: {e}")
+        raise e
+ 
+  print("place_market_order: order placed")
+ 
   # Return result
   return placed_order.data
 
